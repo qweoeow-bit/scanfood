@@ -1,0 +1,59 @@
+<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>SCANFOOD</title><script src="https://unpkg.com/html5-qrcode" defer></script><style>*{box-sizing:border-box}body{margin:0;background:#f5f5f2;color:#111;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{max-width:520px;margin:auto;min-height:100vh;padding:18px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.logo{font-weight:900;letter-spacing:-1px;font-size:22px}.pill{font-size:12px;background:#fff;border:1px solid #e6e6e2;border-radius:999px;padding:8px 11px;color:#666}.hero{background:#111;color:#fff;border-radius:28px;padding:26px 22px;margin-bottom:14px}.hero h1{font-size:40px;line-height:.95;margin:0 0 12px;letter-spacing:-2px}.hero p{color:#bcbcb8;margin:0;line-height:1.45}.scan{margin-top:24px;background:#fff;color:#111;border:0;border-radius:18px;padding:17px;width:100%;font-size:16px;font-weight:800;cursor:pointer}.manual{background:transparent;border:0;color:#999;text-decoration:underline;margin:16px auto;display:block}.card{background:#fff;border:1px solid #e7e7e2;border-radius:24px;padding:20px;margin-top:14px}.hidden{display:none!important}.product-img{width:100%;height:220px;object-fit:contain;border-radius:18px;background:#f7f7f4}.name{font-size:25px;font-weight:850;letter-spacing:-.7px;margin:16px 0 5px}.brand{color:#777}.score{font-size:54px;font-weight:900;letter-spacing:-3px;margin-top:18px}.verdict{font-weight:900;font-size:20px;margin-top:-4px}.reason{color:#555;line-height:1.5;margin:8px 0 0}.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}.stat{background:#f5f5f2;border-radius:15px;padding:13px}.stat b{display:block;font-size:18px}.stat span{font-size:12px;color:#777}.back{border:0;background:#eee;border-radius:14px;padding:12px 16px;font-weight:700;margin-top:15px}.bar{height:10px;border-radius:99px;background:#e8e8e4;overflow:hidden;margin:9px 0}.fill{height:100%;width:0;background:#111;transition:.5s}.scanner{background:#111;border-radius:24px;overflow:hidden;padding:10px}.scanner-title{color:white;padding:10px;font-weight:800}.input{width:100%;padding:15px;border:1px solid #ddd;border-radius:14px;font-size:16px}.error{background:#fff1f1;color:#9b2222;padding:14px;border-radius:15px;margin-top:12px}.source{font-size:11px;color:#999;margin-top:18px}.composition b{font-size:15px}.composition div{font-size:13px}.footer{padding:30px 4px;color:#999;font-size:11px;line-height:1.4}
+/* mobile polish */
+html,body{min-height:100%;background:#f4f4f1}body{-webkit-tap-highlight-color:transparent}.app{width:100%;max-width:560px;padding:14px 16px 28px}.top{position:sticky;top:0;z-index:5;background:#f4f4f1;padding:8px 0 14px;margin:0 -1px 10px}.logo{font-size:21px}.pill{padding:7px 10px}.hero{min-height:calc(100svh - 100px);display:flex;flex-direction:column;justify-content:flex-end;border-radius:30px;padding:24px 20px 20px;margin-bottom:10px;background:#111}.hero h1{font-size:clamp(46px,14vw,72px);line-height:.88;margin-bottom:16px}.hero p{font-size:15px;max-width:390px}.scan{min-height:58px;font-size:17px;border-radius:18px;margin-top:28px}.manual{font-size:14px;padding:12px 18px;margin:7px auto 14px}.card{border-radius:24px;padding:17px}.scanner{padding:0;background:#111;border-radius:20px}.scanner-title{font-size:15px;padding:14px}.scanner #reader{width:100%!important;overflow:hidden;border-radius:0 0 18px 18px}.scanner #reader video{border-radius:0 0 18px 18px}.product-img{height:min(48vw,260px);min-height:180px}.name{font-size:24px}.score{font-size:58px}.stats{grid-template-columns:1fr 1fr}.back{width:100%;min-height:48px;background:#e8e8e4}.footer{text-align:center;padding:22px 8px}.error{font-size:13px}.composition{font-size:14px}
+@media (max-width:380px){.hero h1{font-size:45px}.hero{min-height:calc(100svh - 90px)}.score{font-size:52px}}
+</style></head><body><main class="app"><div class="top"><div class="logo">SCANFOOD</div><div class="pill">MVP · РФ</div></div><section id="home"><div class="hero"><h1>ПИК.<br>И ЗНАЕШЬ.</h1><p>Сканируй штрихкод продукта и получай простой FOOD SCORE — без чтения мелкого текста на упаковке.</p><button class="scan" onclick="openScanner()">Сканировать штрихкод</button></div><button class="manual" onclick="manualCode()">Ввести штрихкод вручную</button><div id="scannerWrap" class="card hidden"><div class="scanner-title">Наведи камеру на штрихкод</div><div id="reader"></div></div></section><section id="result" class="hidden"><button class="back" onclick="goHome()">← Сканировать другой</button><div class="card" id="resultCard"></div></section><div class="footer">Данные о продукте предоставляются Open Food Facts. Оценка FOOD SCORE — экспериментальная пользовательская модель, не медицинская рекомендация.</div></main><script>const API='https://world.openfoodfacts.org/api/v3/product/';let scanner=null;async function openScanner(){document.getElementById('scannerWrap').classList.remove('hidden');if(scanner)return;if(typeof Html5Qrcode==='undefined'){document.getElementById('reader').innerHTML='<div class="error">Сканер ещё загружается. Нажми ещё раз через секунду.</div>';return;}scanner=new Html5Qrcode('reader');scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:270,height:150}},code=>{scanner.stop().then(()=>{scanner=null;document.getElementById('scannerWrap').classList.add('hidden');loadProduct(code)}).catch(()=>loadProduct(code))},()=>{}).catch(e=>{scanner=null;document.getElementById('reader').innerHTML='<div class="error">Не удалось открыть камеру. Разреши доступ к камере в браузере. Если файл открыт напрямую, используй ручной ввод штрихкода.</div>'})}function manualCode(){const c=prompt('Введите штрихкод (EAN):');if(c&&/^[0-9]+$/.test(c.trim()))loadProduct(c.trim())}async function loadProduct(code){document.getElementById('home').classList.add('hidden');document.getElementById('result').classList.remove('hidden');const card=document.getElementById('resultCard');card.innerHTML='<b>Ищу продукт…</b><p class="reason">Штрихкод: '+esc(code)+'</p>';try{const r=await fetch(API+encodeURIComponent(code)+'?fields=code,product_name,brands,image_front_url,nutriments,categories_tags,ingredients_text,nutriscore_grade');if(!r.ok)throw new Error('not found');const d=await r.json();if(!d.product||d.status==='failure')throw new Error('not found');renderProduct(d.product,code)}catch(e){card.innerHTML='<div class="score">?</div><div class="verdict">Товар не найден</div><p class="reason">В базе пока нет данных по этому штрихкоду. Можно попробовать другой товар.</p><div class="source">Штрихкод: '+esc(code)+'</div>'}}function num(x){return typeof x==='number'&&isFinite(x)?x:null}function clamp(x,a,b){return Math.max(a,Math.min(b,x))}function score(p){
+ const n=p.nutriments||{}; let s=10, reasons=[]; const ingredientText=(p.ingredients_text||'').toLowerCase();
+ const sugar=num(n.sugars_100g),sat=num(n['saturated-fat_100g']),salt=num(n.salt_100g),protein=num(n.proteins_100g),fiber=num(n.fiber_100g),kcal=num(n['energy-kcal_100g']);
+ if(sugar!==null){let pen=sugar<=5?0:sugar<=10?1:sugar<=20?2:sugar<=35?3:4;s-=pen;if(pen>=2)reasons.push('много сахара')}
+ if(sat!==null){let pen=sat<=2?0:sat<=5?1:sat<=10?2:3;s-=pen;if(pen>=2)reasons.push('много насыщенных жиров')}
+ if(salt!==null){let pen=salt<=0.3?0:salt<=1?1:salt<=1.5?2:3;s-=pen;if(pen>=2)reasons.push('много соли')}
+ if(kcal!==null&&kcal>450){s-=1;if(kcal>600)reasons.push('высокая калорийность')}
+ if(protein!==null&&protein>=8)s+=1;if(fiber!==null&&fiber>=3)s+=.5;
+ // Composition/processing signals. These are not claims that an additive is "dangerous";
+ // they indicate a long/complex ingredient list and highly processed formulation.
+ const patterns=[
+  ['нитрит натрия',1.2,'нитрит натрия'],['полифосфат',.8,'фосфаты'],['пирофосфат',.5,'фосфаты'],['эмульгатор',.5,'эмульгаторы'],['стабилизатор',.4,'стабилизаторы'],['загустител',.4,'загустители'],['ароматизатор',.5,'ароматизаторы'],['красител',.4,'красители'],['антиокислител',.3,'антиокислители'],['сахарный коллер',.3,'краситель/колер'],['крахмал',.25,'добавленный крахмал']
+ ];
+ let hits=[]; for(const [term,pen,label] of patterns){if(ingredientText.includes(term)){s-=pen;if(!hits.includes(label))hits.push(label)}}
+ const ingredientCount=(ingredientText.match(/,/g)||[]).length+1;
+ if(ingredientCount>18){s-=1.2; reasons.push('очень длинный состав')} else if(ingredientCount>12){s-=.7; reasons.push('длинный состав')}
+ const processed=p.categories_tags?.join(' ')?.toLowerCase()||'';
+ const isProcessedMeat=/pizza|пицц|колбас|sausage|pepperoni|мясн/.test((ingredientText+' '+processed));
+ if(isProcessedMeat && /(нитрит натрия|колбас|пепперони)/.test(ingredientText)){s-=.8;reasons.push('переработанное мясо')}
+ if(/фритюр|обжарено во фритюре/.test(ingredientText)){s-=.7;reasons.push('обжарено во фритюре')}
+ if(hits.length>=3)reasons.push('много технологических добавок');
+ s=clamp(s,0,10);
+ let verdict=s>=8?'ХОРОШИЙ ВЫБОР':s>=6?'НОРМ':s>=4?'ЛУЧШЕ НЕ ЧАСТО':'ЛУЧШЕ ОГРАНИЧИТЬ';
+ return {s:Math.round(s*10)/10,verdict,reasons,ingredientCount,signals:hits};
+}function renderProduct(p,code){
+  const x=score(p), n=p.nutriments||{};
+  const color=x.s>=8?'#17853b':x.s>=6?'#8a7b00':x.s>=4?'#c56700':'#c52c2c';
+  const reason=x.reasons.length?'⚠ '+x.reasons.slice(0,3).join(' · '):'✓ По доступным данным состав выглядит нормально';
+  const img=p.image_front_url?`<img class="product-img" src="${esc(p.image_front_url)}" alt="">`:'';
+  const signals=x.signals.length?` · ${x.signals.slice(0,3).map(esc).join(', ')}`:'';
+  document.getElementById('resultCard').innerHTML=`
+    ${img}
+    <div class="name">${esc(p.product_name||'Без названия')}</div>
+    <div class="brand">${esc(p.brands||'')}</div>
+    <div class="score" style="color:${color}">${x.s} / 10</div>
+    <div class="verdict" style="color:${color}">${x.verdict}</div>
+    <p class="reason">${esc(reason)}</p>
+    <div class="bar"><div class="fill" style="width:${x.s*10}%;background:${color}"></div></div>
+    <div class="stats">
+      ${stat(n['energy-kcal_100g'],'ккал','Калорийность')}
+      ${stat(n.proteins_100g,'г','Белки')}
+      ${stat(n.sugars_100g,'г','Сахара')}
+      ${stat(n.salt_100g,'г','Соль')}
+    </div>
+    <div class="composition" style="margin-top:18px;padding:15px;background:#f5f5f2;border-radius:16px">
+      <b>Состав</b>
+      <div style="margin-top:7px;color:#555">${x.ingredientCount} компонентов${signals}</div>
+    </div>
+    <details style="margin-top:18px">
+      <summary>Показать состав</summary>
+      <p class="reason">${esc(p.ingredients_text||'Состав не указан')}</p>
+    </details>
+    <div class="source">Штрихкод: ${esc(code)} · данные Open Food Facts</div>`;
+}
+function stat(v,u,label){return '<div class="stat"><b>'+(v==null?'—':v)+' '+u+'</b><span>'+label+' на 100 г</span></div>'}function goHome(){document.getElementById('result').classList.add('hidden');document.getElementById('home').classList.remove('hidden');document.getElementById('scannerWrap').classList.add('hidden');document.getElementById('reader').innerHTML=''}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}</script></body></html>
